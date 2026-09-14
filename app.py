@@ -31,7 +31,8 @@ def db_conn_info() -> dict[str, Any]:
 
 
 def format_vector(vector: Sequence[float]) -> str:
-    return "[" + ",".join(f"{v:.8f}" for v in vector) + "]"
+    cleaned = [0.0 if (v != v or v == float('inf') or v == float('-inf')) else v for v in vector]
+    return "[" + ",".join(f"{v:.8f}" for v in cleaned) + "]"
 
 
 @st.cache_resource(show_spinner="Loading local embedding model...")
@@ -185,8 +186,9 @@ def main() -> None:
             render_result(row)
 
     except Exception as exc:
+        import traceback
         LOGGER.exception("Search pipeline failed")
-        st.error(f"检索失败: {exc}")
+        st.error(f"检索失败: {exc}\n\n```\n{traceback.format_exc()}\n```")
 
 
 if __name__ == "__main__":
