@@ -1,0 +1,21 @@
+# Secrets
+.env
+.env.*
+
+# Raw data (never pushed)
+source_novels/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Runtime state
+checkpoint.json
+*.log
+
+# IDE
+.idea/
+.vscode/
