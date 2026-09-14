@@ -5,6 +5,8 @@ import os
 import time
 from typing import Any, Sequence
 
+os.environ.setdefault("TQDM_DISABLE", "1")
+
 import psycopg2
 import streamlit as st
 from sentence_transformers import SentenceTransformer
@@ -37,8 +39,6 @@ def format_vector(vector: Sequence[float]) -> str:
 
 @st.cache_resource(show_spinner="Loading local embedding model...")
 def load_embedder(model_name: str = EMBEDDING_MODEL) -> SentenceTransformer:
-    import os
-    os.environ.setdefault("TQDM_DISABLE", "1")
     kwargs: dict[str, Any] = {}
     hf_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
     if hf_token:
