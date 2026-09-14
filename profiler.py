@@ -124,17 +124,19 @@ def build_llm_chain(
 ):
     output_parser = JsonOutputParser(pydantic_object=schema)
     format_instructions = output_parser.get_format_instructions()
+    escaped_instructions = format_instructions.replace("{", "{{").replace("}", "}}")
+    system_content = (
+        "你是一个经验丰富的中文网络小说编辑。你的任务是严格根据用户提供的"
+        "小说开头片段与章节概览，抽取结构化元数据。\n"
+        "你必须只输出符合以下JSON Schema的JSON对象，不要输出任何其他文字。\n"
+        "约束：main_genres 最多3个文学体裁标签；story_tropes 给出情节套路（如"
+        "\"系统流\",\"背叛\",\"复仇\"）；one_sentence_summary 用一句话概括核心"
+        "设定与总体故事前提，不得超过200个汉字。\n\n"
+        f"{escaped_instructions}"
+    )
     prompt = ChatPromptTemplate.from_messages(
         [
-            (
-                "system",
-                "你是一个经验丰富的中文网络小说编辑。你的任务是严格根据用户提供的"
-                "小说开头片段与章节概览，抽取结构化元数据。\n"
-                "你必须只输出符合以下JSON Schema的JSON对象，不要输出任何其他文字。\n"
-                "约束：main_genres 最多3个文学体裁标签；story_tropes 给出情节套路（如"
-                "\"系统流\",\"背叛\",\"复仇\"）；one_sentence_summary 用一句话概括核心"
-                "设定与总体故事前提，不得超过200个汉字。\n\n{format_instructions}",
-            ),
+            ("system", system_content),
             (
                 "human",
                 "以下是小说的前序文本片段与章节概览：\n\n{input}\n\n"

@@ -1,9 +1,12 @@
+param(
+    [string]$PythonExe = 'python'
+)
+
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
 $ProjectRoot = $PSScriptRoot
 $VenvDir = Join-Path $ProjectRoot '.venv'
-$PythonExe = 'python'
 $Requirements = @(
     'langchain-openai',
     'pydantic',
