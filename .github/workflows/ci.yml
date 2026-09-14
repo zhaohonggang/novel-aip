@@ -1,0 +1,43 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg18
+        env:
+          POSTGRES_DB: fileindex
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov ruff mypy
+      - name: Lint
+        run: ruff check .
+      - name: Type Check
+        run: mypy --strict .
+      - name: Unit Tests
+        run: pytest tests/unit -xvs --cov=novels --cov-fail-under=80
+      - name: Integration Tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fileindex
+        run: pytest tests/integration -xvs --tb=short
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v4

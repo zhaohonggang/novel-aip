@@ -1,0 +1,116 @@
+site_name: Novel-AIP Technical Documentation
+site_description: Novel Automated Indexing & Profiling Platform — Local-first semantic novel discovery system
+site_url: https://zhaohonggang.github.io/novel-aip/
+repo_url: https://github.com/zhaohonggang/novel-aip
+repo_name: zhaohonggang/novel-aip
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: zh
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Noto Sans SC
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotate
+    - content.code.copy
+
+plugins:
+  - search:
+      lang:
+        - zh
+        - en
+  - git-revision-date-localized:
+      type: timeago
+      fallback_to_build_date: true
+  - minify:
+      minify_html: true
+  - mermaid2
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.arithmatex:
+      generic: true
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+      title: 页面目录
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/zhaohonggang/novel-aip
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/
+  generator: false
+
+nav:
+  - 首页: index.md
+  - 项目概述与架构设计:
+      - 中文: zh-CN/01-项目概述与架构设计.md
+      - English: en-US/01-Project-Overview-and-Architecture.md
+  - 环境部署与配置指南:
+      - 中文: zh-CN/02-环境部署与配置指南.md
+      - English: en-US/02-Environment-Setup-and-Configuration.md
+  - 数据采集与预处理:
+      - 中文: zh-CN/03-数据采集与预处理.md
+      - English: en-US/03-Data-Ingestion-and-Preprocessing.md
+  - 双阶段实体抽取与结构化分析:
+      - 中文: zh-CN/04-双阶段实体抽取与结构化分析.md
+      - English: en-US/04-Dual-Stage-NER-and-LLM-Profiling.md
+  - 向量数据库设计与数据入库:
+      - 中文: zh-CN/05-向量数据库设计与数据入库.md
+      - English: en-US/05-Vector-Database-Design-and-Data-Loading.md
+  - 混合检索服务与 Web UI:
+      - 中文: zh-CN/06-混合检索服务与-Web-UI.md
+      - English: en-US/06-Hybrid-Search-Service-and-Web-UI.md
+  - 运维监控与性能调优:
+      - 中文: zh-CN/07-运维监控与性能调优.md
+      - English: en-US/07-Operations-Monitoring-and-Performance-Tuning.md
+  - 故障排查与常见问题:
+      - 中文: zh-CN/08-故障排查与常见问题.md
+      - English: en-US/08-Troubleshooting-and-FAQ.md
+  - API 参考与接口规范:
+      - 中文: zh-CN/09-API-参考与接口规范.md
+      - English: en-US/09-API-Reference-and-Specifications.md
+  - 扩展开发与二次开发指南:
+      - 中文: zh-CN/10-扩展开发与二次开发指南.md
+      - English: en-US/10-Extension-Development-Guide.md
+
+copyright: Copyright &copy; 2026 Novel-AIP Contributors
