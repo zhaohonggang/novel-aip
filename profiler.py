@@ -4,11 +4,13 @@ import argparse
 import logging
 import re
 from collections import Counter
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import Runnable
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
@@ -121,7 +123,7 @@ def build_dense_snippet(
 def build_llm_chain(
     llm: ChatOpenAI,
     schema: type[BaseModel] = NovelSchema,
-):
+) -> Runnable[dict[str, str], NovelSchema]:
     output_parser = JsonOutputParser(pydantic_object=schema)
     format_instructions = output_parser.get_format_instructions()
     escaped_instructions = format_instructions.replace("{", "{{").replace("}", "}}")
@@ -196,10 +198,9 @@ def build_llm(
     return ChatOpenAI(
         base_url=base_url,
         model=model,
-        api_key=api_key,
+        api_key=api_key,  # type: ignore[arg-type]
         temperature=temperature,
         max_retries=2,
-        request_timeout=300,
     )
 
 
@@ -236,7 +237,7 @@ def main() -> None:
         schema = profile_text(text, nlp, chain)
         schema.main_genres = schema.main_genres[:3]
 
-    print(schema.model_dump_json(indent=2))
+    LOGGER.info(schema.model_dump_json(indent=2))
 
 
 def _read_any(file_path: Path) -> str:

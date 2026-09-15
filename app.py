@@ -3,7 +3,8 @@ from __future__ import annotations
 import logging
 import os
 import time
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 os.environ.setdefault("TQDM_DISABLE", "1")
 
@@ -37,7 +38,7 @@ def format_vector(vector: Sequence[float]) -> str:
     return "[" + ",".join(f"{v:.8f}" for v in cleaned) + "]"
 
 
-@st.cache_resource(show_spinner="Loading local embedding model...")
+@st.cache_resource(show_spinner="Loading local embedding model...")  # type: ignore[untyped-decorator]
 def load_embedder(model_name: str = EMBEDDING_MODEL) -> SentenceTransformer:
     kwargs: dict[str, Any] = {}
     hf_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
@@ -62,19 +63,18 @@ def get_connection() -> Any:
     return psycopg2.connect(**db_conn_info())
 
 
-def db_stats() -> dict[str, str]:
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(id) FROM novel_catalog")
-            total = cur.fetchone()[0]
-            cur.execute("SELECT pg_size_pretty(pg_relation_size('novel_catalog'))")
-            size = cur.fetchone()[0]
-            cur.execute("SELECT COUNT(*) FROM novel_catalog WHERE summary_embedding IS NOT NULL")
-            embedded = cur.fetchone()[0]
+def db_stats() -> dict[str, str | int]:
+    with get_connection() as conn, conn.cursor() as cur:
+        cur.execute("SELECT COUNT(id) FROM novel_catalog")
+        total = cur.fetchone()[0]
+        cur.execute("SELECT pg_size_pretty(pg_relation_size('novel_catalog'))")
+        size = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM novel_catalog WHERE summary_embedding IS NOT NULL")
+        embedded = cur.fetchone()[0]
     return {"total": int(total), "embedded": int(embedded), "size": str(size)}
 
 
-def search_novels(query_vector: Sequence[float], limit: int = TOP_K) -> list[tuple[Any, ...]]:
+def search_novels(query_vector: Sequence[float], limit: int = TOP_K) -> tuple[list[tuple[Any, ...]], float]:
     sql = """
         SELECT
             title,
@@ -91,10 +91,9 @@ def search_novels(query_vector: Sequence[float], limit: int = TOP_K) -> list[tup
         LIMIT %s
     """
     start = time.perf_counter()
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(sql, (format_vector(query_vector), limit))
-            rows = cur.fetchall()
+    with get_connection() as conn, conn.cursor() as cur:
+        cur.execute(sql, (format_vector(query_vector), limit))
+        rows = cur.fetchall()
     latency_ms = (time.perf_counter() - start) * 1000.0
     return rows, latency_ms
 
@@ -122,9 +121,9 @@ def render_result(row: tuple[Any, ...]) -> None:
         st.markdown(header)
 
         cols = st.columns(3)
-        cols[0].markdown(f"**体裁**\n" + _tags(genres, "Unknown"))
-        cols[1].markdown(f"**主要角色**\n" + _tags(main_characters, "—"))
-        cols[2].markdown(f"**故事套路**\n" + _tags(tropes, "—"))
+        cols[0].markdown("**体裁**\n" + _tags(genres, "Unknown"))
+        cols[1].markdown("**主要角色**\n" + _tags(main_characters, "—"))
+        cols[2].markdown("**故事套路**\n" + _tags(tropes, "—"))
 
         if key_locations:
             st.markdown(f"**地点**: {', '.join(key_locations)}")

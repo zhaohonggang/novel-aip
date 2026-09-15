@@ -5,8 +5,9 @@ import json
 import logging
 import os
 import time
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 import psycopg2
 from psycopg2 import extras, sql
@@ -106,7 +107,7 @@ def insert_chunk(
                 "(%s, %s, %s, %s, %s, %s, %s, %s::vector, %s)"
             ).as_string(conn)
             rows = []
-            for record, vector in zip(records, embeddings):
+            for record, vector in zip(records, embeddings, strict=True):
                 rows.append(
                     (
                         record["title"],

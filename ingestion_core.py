@@ -6,10 +6,10 @@ import logging
 import os
 import threading
 import traceback
-from dataclasses import dataclass, field
+from collections.abc import Iterator
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 from tqdm import tqdm
 
@@ -71,9 +71,9 @@ class CheckpointManager:
         if not isinstance(payload.get("last_modified_timestamp"), (int, float)):
             return False
         error_log = payload.get("error_log")
-        if error_log is not None and not isinstance(error_log, str):
-            return False
-        return True
+        if error_log is not None and isinstance(error_log, str):
+            return True
+        return error_log is None
 
     def save(self) -> None:
         with self._lock:
